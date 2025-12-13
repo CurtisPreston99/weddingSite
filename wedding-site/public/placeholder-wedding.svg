@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0" stop-color="#f7cac9"/>
+      <stop offset="1" stop-color="#92a8d1"/>
+    </linearGradient>
+    <style>
+      .bg{fill:url(#g)}
+      .title{font-family:Arial, Helvetica, sans-serif;fill:#fff;font-size:48px;font-weight:700}
+      .sub{font-family:Arial, Helvetica, sans-serif;fill:#fff;font-size:20px}
+    </style>
+  </defs>
+  <rect class="bg" width="1600" height="900" rx="0"/>
+  <g transform="translate(0,260)">
+    <text x="50%" y="120" text-anchor="middle" class="title">Kat &amp; Curtis</text>
+    <text x="50%" y="180" text-anchor="middle" class="sub">Placeholder image — your photo goes here</text>
+  </g>
+  <g transform="translate(1400,40) scale(0.6)">
+    <path d="M10 30 C 20 5, 60 5, 70 30 C 80 55, 40 85, 40 85 C 40 85, 0 55, 10 30 Z" fill="#fff" opacity="0.9"/>
+  </g>
+</svg>

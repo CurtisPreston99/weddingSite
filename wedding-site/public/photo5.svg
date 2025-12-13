@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="100%" height="100%" fill="#fff0f3"/>
+  <g>
+    <rect x="180" y="140" width="440" height="260" rx="30" fill="#f8b4c6"/>
+    <text x="50%" y="520" fill="#333" font-family="Arial, Helvetica, sans-serif" font-size="32" text-anchor="middle">Photo 5</text>
+  </g>
+</svg>
