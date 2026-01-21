@@ -1,16 +1,16 @@
+import { NgIf } from '@angular/common';
 import { Component, signal, AfterViewInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet,NgIf],
   templateUrl: './app.html',
   styleUrl: './app.less'
 })
 export class App {
   protected readonly title = signal('wedding-site');
 
-  @ViewChild('p5container', { static: false }) p5container!: ElementRef<HTMLElement>;
   @ViewChild('p5containerBottomEnvelop', { static: false }) p5containerBottomEnvelop!: ElementRef<HTMLElement>;
   @ViewChild('p5containerBottomFlap', { static: false }) p5containerBottomFlap!: ElementRef<HTMLElement>;
 
@@ -19,167 +19,10 @@ export class App {
   private p5InstanceBottomFlap: any = null;
 
 
-  private envelopeOpen: boolean = false;
+  public envelopeOpen: boolean = false;
   private envelopeShared: any = null;
 
   ngAfterViewInit(): void {
-    // initialize a small test sketch using global p5 (loaded from CDN in index.html)
-    const parent = this.p5container?.nativeElement;
-    if (!parent) return;
-
-    const sketch = (p: any) => {
-      // floating polaroid sketch (transparent background)
-      let imgs: any[] = [];
-      let polaroids: any[] = [];
-
-      function makePolaroid(img: any) {
-        const w = Math.min(200, (img?.width || 800) * 0.15);
-        const h = Math.min(160, (img?.height || 600) * 0.15);
-        const x = p.width / 2 + (Math.random() - 0.5) * 260;
-        const y = p.height / 2 + (Math.random() - 0.5) * 80;
-        return {
-          img,
-          x,
-          y,
-          targetX: x,
-          targetY: y,
-          vx: 0,
-          vy: 0,
-          w,
-          h,
-          angle: (Math.random() - 0.5) * 0.4,
-          baseAngle: (Math.random() - 0.5) * 0.1,
-          speed: 0.3 + Math.random() * 0.8,
-          drift: (Math.random() - 0.5) * 0.4
-        };
-      }
-
-      p.preload = () => {
-        imgs = [
-          p.loadImage('/photo1.svg'),
-          p.loadImage('/photo2.svg'),
-          p.loadImage('/photo3.svg'),
-          p.loadImage('/photo4.svg'),
-          p.loadImage('/photo5.svg'),
-          p.loadImage('/photo6.svg'),
-          p.loadImage('/photo7.svg'),
-          p.loadImage('/photo8.svg'),
-          p.loadImage('/photo9.svg')
-        ];
-      };
-
-      p.setup = () => {
-        p.createCanvas(parent.clientWidth, parent.clientHeight);
-        p.noStroke();
-        if (p.canvas && p.canvas.style) p.canvas.style.background = 'transparent';
-
-        // build polaroid objects when images are available
-        for (let i = 0; i < imgs.length; i++) {
-          polaroids.push(makePolaroid(imgs[i]));
-        }
-      };
-
-      p.draw = () => {
-        p.clear();
-
-        const t = p.millis() / 1000;
-
-        // detect which polaroid (if any) is hovered by the mouse
-        const mx = p.mouseX;
-        const my = p.mouseY;
-        let activeIndex = -1;
-        for (let i = 0; i < polaroids.length; i++) {
-          const pol = polaroids[i];
-          const dx = mx - pol.x;
-          const dy = my - pol.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const hitRadius = Math.max(pol.w, pol.h) * 0.6;
-          if (!isNaN(dist) && dist < hitRadius) {
-            activeIndex = i;
-            break;
-          }
-        }
-
-        // physics: spring back to target + repulsion from active polaroid
-        const repelRadius = 1800;
-        for (let i = 0; i < polaroids.length; i++) {
-          const pol = polaroids[i];
-
-          // spring toward target
-          const spring = 0.04;
-          let ax = (pol.targetX - pol.x) * spring;
-          let ay = (pol.targetY - pol.y) * spring;
-
-          // if another polaroid is active, repel this one away from it
-          if (activeIndex >= 0 && i !== activeIndex) {
-            const aPol = polaroids[activeIndex];
-            let dx = pol.x - aPol.x;
-            let dy = pol.y - aPol.y;
-            let dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 1) dist = 1;
-            if (dist < repelRadius) {
-              const strength = (repelRadius - dist) / repelRadius * 6;
-              ax += (dx / dist) * strength;
-              ay += (dy / dist) * strength;
-            }
-          }
-
-          // small upward lift for the hovered polaroid
-          if (activeIndex === i) {
-            ay -= 0.6;
-          }
-
-          // integrate
-          pol.vx += ax;
-          pol.vy += ay;
-          pol.vx *= 0.88; // damping
-          pol.vy *= 0.88;
-          pol.x += pol.vx;
-          pol.y += pol.vy;
-        }
-
-        // draw polaroids (after physics update)
-        polaroids.forEach((pol: any, idx: number) => {
-          const wobble = Math.sin(t * (0.6 + pol.speed * 0.2) + idx) * 0.02;
-          const a = pol.baseAngle + wobble + (pol.angle || 0);
-          const px = pol.x;
-          const py = pol.y;
-
-          // shadow
-          p.push();
-          p.translate(px + 6, py + 10);
-          p.rotate(a);
-          p.fill(0, 0, 0, 45);
-          p.rectMode(p.CENTER);
-          p.rect(0, 0, pol.w + 26, pol.h + 66, 8);
-          p.pop();
-
-          // frame and image
-          p.push();
-          p.translate(px, py);
-          p.rotate(a);
-          p.fill(255);
-          p.rectMode(p.CENTER);
-          const frameW = pol.w + 30;
-          const frameH = pol.h + 80;
-          p.rect(0, 0, frameW, frameH, 8);
-
-          p.imageMode(p.CENTER);
-          p.image(pol.img, 0, -12, pol.w, pol.h);
-
-          // bottom caption stripe
-          p.fill(230);
-          p.noStroke();
-          p.rect(0, frameH / 2 - 20, frameW - 36, 5, 3);
-
-          p.pop();
-        });
-      };
-
-      p.windowResized = () => {
-        p.resizeCanvas(parent.clientWidth, parent.clientHeight);
-      };
-    };
 
     // If p5 is not yet available on window, wait briefly (should be loaded from index.html)
     const ensureP5 = (cb: (P5: any) => void) => {
@@ -192,7 +35,6 @@ export class App {
     };
 
     ensureP5((P5: any) => {
-      this.p5Instance = new P5(sketch, parent);
       // make sure the main canvas is transparent
       if (this.p5Instance && this.p5Instance.canvas && this.p5Instance.canvas.style) {
         const c = this.p5Instance.canvas;
@@ -333,6 +175,9 @@ export class App {
             if (Math.abs(dx) <= halfW && Math.abs(dy) <= halfH) {
               // toggle open state and set targets for flap and expansion
               envelope.open = !envelope.open;
+              this.envelopeOpen = envelope.open; 
+              console.log(this.envelopeOpen)
+              console.log(this)
               envelope.target = envelope.open ? 1 : 0; // flap
               envelope.scaleTarget = envelope.open ? 1 : 0; // expand to full width when opening
             }

@@ -1,0 +1,18 @@
+
+<div class="container">
+
+    <svg width="100vw" height="100vh" viewBox="0 0 400 300" (click)="toggleEnvelope()" class="envelope-svg" [class.open]="isOpen">
+        <!-- Envelope body -->
+        <rect x="50" y="75" width="300" height="150" fill="white" stroke="#333" stroke-width="2"/>
+        
+        <!-- Envelope flap (back) -->
+        <polygon points="50,75 200,0 350,75" fill="none" stroke="#333" stroke-width="2" class="flap-back"/>
+        
+        <!-- Envelope flap (front) -->
+        <polygon points="50,75 200,150 350,75" fill="white" stroke="#333" stroke-width="2" class="flap-front"/>
+        
+        <!-- Envelope dividing lines (only show when closed) -->
+        <line x1="50" y1="75" x2="200" y2="150" stroke="#333" stroke-width="2" class="dividing-line-left"/>
+        <line x1="350" y1="75" x2="200" y2="150" stroke="#333" stroke-width="2" class="dividing-line-right"/>
+    </svg>
+</div>
